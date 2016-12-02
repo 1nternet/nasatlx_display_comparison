@@ -25,6 +25,7 @@ var left       = new Array();
 var right      = new Array();
 var def        = new Array();
 var NUM_SCALES = 6;
+var version_count = 1;
 
 scale[0]  = "Mental Demand"; 
 left[0]   = "Low";
@@ -80,6 +81,7 @@ var results_rating = new Array();
 var results_tally  = new Array();
 var results_weight = new Array();
 var comparison_result = new Array(); // stores the comparison and the result
+var universal_rr = new Array(); // contains the results_rating for each variation
 var results_overall;
 
 var pair_num = 0;
@@ -166,6 +168,7 @@ function getScaleHTML(index)
 	return result;
 }
 
+
 function onLoad()
 {
 	// Get all the scales ready
@@ -173,7 +176,9 @@ function onLoad()
 	{
 		document.getElementById("scale" + i).innerHTML = getScaleHTML(i);
 	}
+	document.getElementById("version").innerHTML = "(Current Variation #" + version_count + ")";
 }
+
 
 // Users want to proceed after doing the scales
 function buttonPart1()
@@ -187,12 +192,17 @@ function buttonPart1()
 			return false;
 		}
 	}
-
-	// Bye bye part 1, hello part 2
-	document.getElementById('div_part1').style.display = 'none'; 
-	document.getElementById('div_part2').style.display = ''; 
-
-	return true;
+	var temp_rr = new Array();
+	temp_rr = JSON.parse(JSON.stringify(results_rating))
+	universal_rr.push(temp_rr);
+	if (version_count == 4) {
+		// Bye bye part 1, hello part 2
+		document.getElementById('div_part1').style.display = 'none'; 
+		document.getElementById('div_part2').style.display = ''; 
+		return true;
+	}
+	version_count += 1;
+	onLoad();
 }
 
 // User done reading the part 2 instructions
@@ -265,7 +275,7 @@ function getResultsHTML()
 	var result = "";
 
 
-	result += "<table><tr><td></td><td>Rating</td><td>Tally</td><td>Weight</td></tr>";
+	result += "<table><tr><td></td><td>Rating_var1</td><td>Rating_var2</td><td>Rating_var3</td><td>Rating_var4</td><td>Tally</td><td>Weight</td></tr>";
 	for (var i = 0; i < NUM_SCALES; i++)
 	{
 		
@@ -276,7 +286,18 @@ function getResultsHTML()
 		result += "</td>";
 
 		result += "<td>";
-		result += results_rating[i];
+		result += universal_rr[0][i];
+		result += "</td>";
+
+		result += "<td>";
+		result += universal_rr[1][i];
+		result += "</td>";
+		result += "<td>";
+		result += universal_rr[2][i];
+		result += "</td>";
+
+		result += "<td>";
+		result += universal_rr[3][i];
 		result += "</td>";
 
 		result += "<td>";
@@ -432,6 +453,7 @@ input.pair
 
   <br/>
   <input class="next" id="next" type="button" value="Continue >>" onClick="buttonPart1();">
+  <div id="version"></div>
 </div>
 
 <div id="div_part2" style="display:none">
